@@ -1,4 +1,4 @@
-package com.technologyzer;
+package com.technologyzer.scenario1;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;

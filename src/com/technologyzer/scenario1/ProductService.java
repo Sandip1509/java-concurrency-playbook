@@ -1,4 +1,4 @@
-package com.technologyzer;
+package com.technologyzer.scenario1;
 public class ProductService {
     private static long start = System.currentTimeMillis();
 

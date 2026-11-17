@@ -1,34 +1,22 @@
 # ⚡ Java Concurrency Playbook
 
-> Production-grade multithreading scenarios, patterns, and pitfalls — real-world concurrency problems solved with clean, tested, idiomatic Java code.
+> Real-world concurrency problems solved with clean, idiomatic Java code.
 
 ---
 
 ## 📖 About
 
-This repository is a curated collection of **production-grade multithreading and concurrency scenarios in Java**, covering the kind of problems engineers actually run into in real-world backend systems — not just textbook examples.
+This repository walks through one production-style concurrency problem: a product page that needs to call four independent backend services (price, stock, reviews, offers) and assemble their results into a single response.
 
-Each scenario is a **self-contained, runnable example** built around the `java.util.concurrent` package (`Executors`, `Locks`, `Atomics`, `CompletableFuture`, `BlockingQueue`, etc.) and modern Java concurrency features.
+The `scenario1` package shows the same problem solved five different ways, in order:
 
-Where relevant, each scenario walks through:
-1. 🚨 The **naive/flawed approach** (and why it breaks under load)
-2. ✅ The **production-grade fix**
-3. 🧠 The **reasoning** behind why it's safe, scalable, and correct
+1. 🚨 `Step1NoWait` — starts the four calls on separate threads but never waits for them, so the response is built before the results arrive (the bug).
+2. 🐢 `Step2Sequential` — calls the four services one after another; correct, but slow.
+3. ✅ `Step3CountDownLatch` — runs the calls concurrently and uses a `CountDownLatch` to wait for all of them.
+4. ✅ `Step4InvokeAll` — runs the calls concurrently via `ExecutorService.invokeAll`.
+5. ✅ `Step5CompletableFuture` — runs the calls concurrently with `CompletableFuture.allOf`, adding a timeout fallback for the reviews call and exception handling for a failing offers call.
 
----
-
-## 🎯 Topics Covered
-
-- 🏁 Race conditions
-- 🔒 Deadlocks & livelocks
-- 🍽️ Thread starvation
-- 🏭 Producer-consumer pipelines
-- 🧵 Thread pool sizing & tuning
-- ⚙️ Lock-free data structures & atomics
-- 🔁 Synchronization pitfalls (`synchronized`, `ReentrantLock`, `ReadWriteLock`)
-- 🧯 Graceful shutdown of concurrent systems
-- ⏳ `CompletableFuture` & async pipelines
-- 📦 `BlockingQueue`-based coordination
+`ProductService` backs all five steps: it simulates the four backend calls with artificial latency and provides a small `resetClock`/`log` utility for timing output.
 
 ---
 
@@ -37,47 +25,33 @@ Where relevant, each scenario walks through:
 ```
 java-concurrency-playbook/
 ├── src/
-│   └── com.technologyzer/
-├── 01-race-conditions/
-├── 02-deadlocks/
-├── 03-thread-pools/
-├── 04-producer-consumer/
-├── 05-lock-free-structures/
-├── 06-graceful-shutdown/
+│   └── com/
+│       └── technologyzer/
+│           └── scenario1/
+│               ├── ProductService.java
+│               ├── Step1NoWait.java
+│               ├── Step2Sequential.java
+│               ├── Step3CountDownLatch.java
+│               ├── Step4InvokeAll.java
+│               └── Step5CompletableFuture.java
 └── README.md
 ```
 
-Each scenario folder contains:
-- 📝 A `README.md` explaining the scenario and the problem it solves
-- 💥 `Naive*.java` — the flawed/naive implementation
-- ✅ `Fixed*.java` — the production-grade solution
-- 🧪 Tests (where applicable) to demonstrate correctness under concurrent load
-
 ---
 
-## 🚀 Getting Started
+## 🚀 Running a step
 
-### Prerequisites
-- ☕ Java 25+
-- 🛠️ Maven / Gradle (specify your build tool)
+There is no build tool configured — compile and run directly with `javac`/`java`:
 
-### Run a scenario
 ```bash
-git clone https://github.com/<your-username>/java-concurrency-playbook.git
-cd java-concurrency-playbook/02-deadlocks
-# compile & run instructions here
+javac -d out src/com/technologyzer/scenario1/*.java
+java -cp out com.technologyzer.scenario1.Step5CompletableFuture
 ```
 
----
-
-## 🎥 Companion YouTube Series
-
-This repo is the companion code for the YouTube series exploring real-world Java concurrency problems. Each video walks through one scenario in depth — the bug, the fix, and the "why" behind it.
-
-🔗 *[Add your channel/playlist link here]*
+Swap the class name to run any of the other steps (`Step1NoWait`, `Step2Sequential`, `Step3CountDownLatch`, `Step4InvokeAll`).
 
 ---
 
 ## 👤 Author
 
-Maintained by **Sandip Kar** — built as part of a Java concurrency learning series for engineers who want practical, battle-tested examples over pure theory.
+Sandip Kar
